@@ -1,0 +1,163 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<h:head>
+  <title>Verwaltung</title>
+  <link rel="stylesheet" href="style/style.css" />	
+   <!--FontAwesome-->
+  <script src="https://kit.fontawesome.com/1c50180c6e.js" crossorigin="anonymous"></script>
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</h:head>
+<h:body> 
+  <div id="header"></div>  
+  <div id="content">
+
+
+    <h1>Verwaltung</h1>
+    <h:outputText value="Number of Benutzers: #{benutzerController.getAllBenutzers().size()}" />
+    <h:outputText value="Benutzername List:" />
+    <ul>
+      <ui:repeat value="#{benutzerBean.allBenutzerNames}" var="benutzername">
+        <li>#{benutzername}</li>
+      </ui:repeat>
+    </ul>
+  
+    
+    <h1>Benutzer List</h1>
+
+    <h:dataTable value="#{requestScope.benutzerList}" var="benutzer">
+        <h:column>
+            <f:facet name="header">Name</f:facet>
+            #{benutzer.benutzername}
+        </h:column>
+        <h:column>
+            <f:facet name="header">Passwort</f:facet>
+            #{benutzer.passwort}
+        </h:column>
+        <h:column>
+            <f:facet name="header">Telefonnummer</f:facet>
+            #{benutzer.telefonnummer}
+        </h:column>
+        <h:column>
+            <f:facet name="header">Berger</f:facet>
+            #{benutzer.istBerger}
+        </h:column>
+    </h:dataTable>
+    <!-- project code comment -->
+    <p:card>
+		<h:outputText
+			value="Willkommen Melder #{benutzerController.aktuellerBenutzer.name}! "
+			rendered="#{benutzerController.logedIn &amp;&amp; !benutzerController.aktuellerBenutzer.isBerger}" />
+		<h:outputText
+			value="Willkommen Berger #{benutzerController.aktuellerBenutzer.name}! "
+			rendered="#{benutzerController.logedIn &amp;&amp; benutzerController.aktuellerBenutzer.isBerger}" />
+		<h:outputText
+			value="Für weitere Funktionen loggen Sie sich bitte auf der Startseite ein!"
+			rendered="#{!benutzerController.logedIn}" />
+	</p:card>
+    <h:form id="netzVerwaltung">
+		<p:card rendered="#{benutzerController.logedIn}">
+			<h:panelGrid columns="2">
+
+				<h:commandLink value="zurück" action="#{netzController.zurueck()}"
+					rendered="#{netzController.index >0}" />
+				<h:outputText value=" " rendered="#{netzController.index ==0}" />
+
+				<h:commandLink value="vor" action="#{netzController.vor()}"
+					rendered="#{netzController.size -1 >netzController.index}" />
+				<h:outputText value=" "
+					rendered="#{netzController.size -1 ==netzController.index}" />
+
+				<h:outputLabel value="Wollen Sie dieses Netz bergen?" for="bergen"
+					rendered="#{benutzerController.aktuellerBenutzer.isBerger}" />
+				<p:selectBooleanCheckbox id="bergen"
+					value="#{netzController.netzBergen}"
+					rendered="#{benutzerController.aktuellerBenutzer.isBerger}">
+					<p:ajax event="change" update="senden status" />
+				</p:selectBooleanCheckbox>
+
+				<h:outputLabel value="ID" for="id" />
+				<h:outputText value="#{netzController.netz.id}" />
+
+				<h:outputLabel value="GPS-Breite" for="gpsb" />
+				<h:outputText value="#{netzController.netz.gpsBreite}" />
+
+				<h:outputLabel value="GPS-Länge" for="gpsl" />
+				<h:outputText value="#{netzController.netz.gpsLänge}" />
+    
+				<h:outputLabel value="Größe:" for="größe" />
+				<h:outputText value="#{netzController.netz.groesse}" />
+
+				<h:outputLabel value="Status: " for="status" />
+				<p:selectOneMenu id="status" value="#{netzController.netz.status}"
+					size="40">
+					<f:selectItem itemValue="Gemeldet" itemLabel="Gemeldet"
+						itemDisabled="#{netzController.netzBergen}" />
+					<f:selectItem itemValue="Bergung bevorstehend"
+						itemLabel="Bergung bevorstehend"
+						itemDisabled="#{!netzController.netzBergen}" />
+					<f:selectItem itemValue="Geborgen" itemLabel="Geborgen"
+						itemDisabled="#{!netzController.netzBergen}" />
+					<f:selectItem itemValue="Verschollen" itemLabel="Verschollen" />
+				</p:selectOneMenu> 
+
+				<h:outputLabel value="Melder" for="melder" />
+				<h:outputText id="melder"
+					value="#{netzController.netz.gemeldetVon.name}" />
+
+				<h:outputLabel value="Erreichbarkeit Melder" for="num" />
+				<h:outputText id="num"
+					value="#{netzController.netz.gemeldetVon.telefonnummer}" />
+
+				<h:outputLabel value="Berger" for="berger" />
+				<h:outputText id="berger" value="#{netzController.netz.berger.name}" />
+
+				<h:outputLabel value="Erreichbarkeit Berger" for="num2" />
+				<h:outputText id="num2"
+					value="#{netzController.netz.berger.telefonnummer}" />
+
+				<h:commandLink value="zurück" action="#{netzController.zurueck()}"
+					rendered="#{netzController.index >0}" />
+				<h:outputText value=" " rendered="#{netzController.index ==0}" />
+
+				<h:commandLink value="vor" action="#{netzController.vor()}"
+					rendered="#{netzController.size -1 >netzController.index}" />
+				<h:outputText value=" "
+					rendered="#{netzController.size -1 ==netzController.index}" />
+
+				<h:panelGroup id="senden">
+					<p:commandLink value="Netz bergen"
+						action="#{netzliste.netzDao.saveNetzWithBerger(benutzerController.aktuellerBenutzer , netzController.netz)}"
+						rendered="#{netzController.netzBergen}" />
+					<p:commandLink value="Änderung übernehmen"
+						action="#{netzliste.netzDao.saveNetz(benutzerController.aktuellerBenutzer , netzController.netz)}"
+						rendered="#{!netzController.netzBergen}" />
+				</h:panelGroup>
+
+
+				<h:commandLink
+					action="#{netzliste.netzDao.deleteNetz(netzController.netz)}"
+					rendered="#{benutzerController.aktuellerBenutzer.name.equals('admin')}">
+					<img src="images/x.png" />
+				</h:commandLink>
+
+			</h:panelGrid>
+		</p:card>
+	</h:form>
+
+
+  </div>
+  <div id="footer"></div>
+  <script>
+    $(function() {
+      $("#header").load("header.html");
+      $("#footer").load("footer.html");
+    });
+  </script>
+
+</h:body>
+</html>
